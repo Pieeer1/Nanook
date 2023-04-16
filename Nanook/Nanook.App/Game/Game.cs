@@ -1,5 +1,6 @@
 ﻿using Nanook.App.Components;
 using Nanook.App.Components.ComponentModels;
+using Nanook.App.Models.Math;
 using SDL2;
 using System.Numerics;
 
@@ -51,11 +52,13 @@ namespace Nanook.App
         public bool IsRunning { get; private set; }
 
         private EntityComponentManager entityComponentManager = new EntityComponentManager();
+        private List<ColliderComponent> colliders { get; set; } = new List<ColliderComponent>();
         private IntPtr window { get; set; }
         private IntPtr renderer { get; set; }
         private SDL.SDL_Event @event;
 
         Entity? player = null;
+        Entity? wall = null;
         public void Init()
         {
 
@@ -76,9 +79,16 @@ namespace Nanook.App
             }
 
             player = entityComponentManager.AddEntity();
-            player.AddComponent<TransformComponent>(new TransformComponent());
+            player.AddComponent<TransformComponent>(new TransformComponent(2));
             player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/BaseCharacter.png"));
             player.AddComponent<KeyboardControlComponent>(new KeyboardControlComponent());
+            player.AddComponent<ColliderComponent>(new ColliderComponent("player"));
+
+            wall = entityComponentManager.AddEntity();
+            wall.AddComponent<TransformComponent>(new TransformComponent(300.0f, 300.0f, 300, 20, 1));
+            wall.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/Dirt.png"));
+            wall.AddComponent<ColliderComponent>(new ColliderComponent("wall"));
+
         }
 
         public void HandleEvents()
@@ -96,10 +106,26 @@ namespace Nanook.App
         }
         public IntPtr GetRendererReference() => renderer;
         public SDL.SDL_Event GetEventReference() => @event;
+        public List<ColliderComponent> GetColliderComponentsReference() => colliders;
         public void Update()
         {
             entityComponentManager.Refresh();
             entityComponentManager.Update();
+
+            foreach (ColliderComponent cc in colliders)
+            {
+                if (cc.Tag != player?.GetComponent<ColliderComponent>().Tag)
+                {
+                    Collision.AABBIsColliding(player?.GetComponent<ColliderComponent>() ?? throw new NullReferenceException("Player Does not Exist"), cc);
+                }                
+            }
+        }
+
+        public void AddTile(int id, int x, int y)
+        {
+            Entity tile = entityComponentManager.AddEntity();
+            tile.AddComponent<TileComponent>(new TileComponent(x, y, 32, 32, id));
+            
         }
 
         public void Render()
@@ -107,6 +133,7 @@ namespace Nanook.App
             SDL.SDL_RenderClear(renderer);
 
             player?.Draw();
+            wall?.Draw();
 
             SDL.SDL_RenderPresent(renderer);
         }
