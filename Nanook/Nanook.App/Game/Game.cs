@@ -1,6 +1,7 @@
 ﻿using Nanook.App.Components;
 using Nanook.App.Components.ComponentModels;
 using SDL2;
+using System.Numerics;
 
 namespace Nanook.App
 {
@@ -52,6 +53,9 @@ namespace Nanook.App
         private EntityComponentManager entityComponentManager = new EntityComponentManager();
         private IntPtr window { get; set; }
         private IntPtr renderer { get; set; }
+        private SDL.SDL_Event @event;
+
+        Entity? player = null;
         public void Init()
         {
 
@@ -71,15 +75,16 @@ namespace Nanook.App
                 throw new InvalidProgramException("Cannot Start SDL Window");
             }
 
-            var player = entityComponentManager.AddEntity();
+            player = entityComponentManager.AddEntity();
             player.AddComponent<TransformComponent>(new TransformComponent());
-            player.GetComponent<TransformComponent>();
+            player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/BaseCharacter.png"));
+            player.AddComponent<KeyboardControlComponent>(new KeyboardControlComponent());
         }
 
         public void HandleEvents()
         {
-            SDL.SDL_PollEvent(out SDL.SDL_Event eve);
-            switch (eve.type)
+            SDL.SDL_PollEvent(out @event);
+            switch (@event.type)
             {
                 case SDL.SDL_EventType.SDL_QUIT:
                     IsRunning = false;
@@ -90,6 +95,7 @@ namespace Nanook.App
 
         }
         public IntPtr GetRendererReference() => renderer;
+        public SDL.SDL_Event GetEventReference() => @event;
         public void Update()
         {
             entityComponentManager.Refresh();
@@ -99,6 +105,8 @@ namespace Nanook.App
         public void Render()
         {
             SDL.SDL_RenderClear(renderer);
+
+            player?.Draw();
 
             SDL.SDL_RenderPresent(renderer);
         }

@@ -8,6 +8,7 @@ namespace Nanook.App.Components
 {
     public abstract class Component
     {
+
         public Entity Entity { get; set; } = null!;
 
         public virtual void Init()

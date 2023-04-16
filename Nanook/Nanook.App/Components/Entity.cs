@@ -31,6 +31,7 @@ namespace Nanook.App.Components
             {
                 throw new InvalidOperationException("Entities may only have one of each Component.");
             }
+            newComponent.Entity = this;
             newComponent.Init();
             components.Add(newComponent);
             return newComponent;

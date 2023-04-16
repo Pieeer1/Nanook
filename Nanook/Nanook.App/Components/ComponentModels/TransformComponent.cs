@@ -1,5 +1,6 @@
 ﻿using Nanook.App.Models.Math;
 using System.Data;
+using System.Diagnostics;
 
 namespace Nanook.App.Components.ComponentModels
 {
@@ -48,7 +49,7 @@ namespace Nanook.App.Components.ComponentModels
 
         public override void Init()
         {
-           
+            Velocity = Vector2.Zero;
         }
         public override void Update()
         {
