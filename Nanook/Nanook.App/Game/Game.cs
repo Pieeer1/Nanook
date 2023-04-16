@@ -1,9 +1,10 @@
 ﻿using Nanook.App.Components;
+using Nanook.App.Components.ComponentModels;
 using SDL2;
 
 namespace Nanook.App
 {
-    public class Game
+    public sealed class Game
     {
         public Game(string title, int xPosition, int yPosition, int width, int height, bool isFullScreen)
         {
@@ -13,6 +14,8 @@ namespace Nanook.App
             Width = width;
             Height = height;
             IsFullScreen = isFullScreen;
+
+            instance = this;
         }
         public Game(GameBuilderSettings settings)
         { 
@@ -22,6 +25,20 @@ namespace Nanook.App
             Width = settings.Width;
             Height = settings.Height;
             IsFullScreen = settings.IsFullScreen;
+
+            instance = this;
+        }
+        private static Game? instance = null;
+        public static Game Instance 
+        {
+            get 
+            {
+                if (instance is null)
+                {
+                    instance = new Game(new GameBuilderSettings());
+                }
+                return instance;
+            }
         }
 
         public string Title { get; private set; } = "Default Title";
@@ -55,7 +72,8 @@ namespace Nanook.App
             }
 
             var player = entityComponentManager.AddEntity();
-            //player.GetComponent<Component>(); // change to transform component or something
+            player.AddComponent<TransformComponent>(new TransformComponent());
+            player.GetComponent<TransformComponent>();
         }
 
         public void HandleEvents()
@@ -71,7 +89,7 @@ namespace Nanook.App
             }
 
         }
-
+        public IntPtr GetRendererReference() => renderer;
         public void Update()
         {
             entityComponentManager.Refresh();

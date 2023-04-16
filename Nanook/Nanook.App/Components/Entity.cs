@@ -36,7 +36,7 @@ namespace Nanook.App.Components
             return newComponent;
         }
         public T GetComponent<T>() where T : Component => (components.First(x => x.GetType() == typeof(T)) as T ?? throw new InvalidCastException($"Could not Find any Components of Type {typeof(T).Name}"));
-
+        public bool HasComponent<T>() where T : Component => components.Any(x => x.GetType() == typeof(T));
         public void Destroy() => IsActive = false;
     }
 }
