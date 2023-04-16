@@ -5,7 +5,7 @@ namespace Nanook.App.Components.ComponentModels
 {
     public class KeyboardControlComponent : Component
     {
-        public TransformComponent? Transform { get; set; }
+        public TransformComponent Transform { get; set; } = null!;
         public override void Init()
         {
             if (!Entity.HasComponent<TransformComponent>())
@@ -44,16 +44,28 @@ namespace Nanook.App.Components.ComponentModels
                 switch (@event.key.keysym.sym)
                 {
                     case SDL.SDL_Keycode.SDLK_w:
-                        Transform.Velocity.Y = 0;
+                        if (Transform.Velocity.Y < 0)
+                        {
+                            Transform.Velocity.Y = 0;
+                        }
                         break;
                     case SDL.SDL_Keycode.SDLK_a:
-                        Transform.Velocity.X = 0;
+                        if (Transform.Velocity.X < 0)
+                        {
+                            Transform.Velocity.X = 0;
+                        }
                         break;
                     case SDL.SDL_Keycode.SDLK_s:
-                        Transform.Velocity.Y = 0;
+                        if (Transform.Velocity.Y > 0)
+                        {
+                            Transform.Velocity.Y = 0;
+                        }
                         break;
                     case SDL.SDL_Keycode.SDLK_d:
-                        Transform.Velocity.X = 0;
+                        if (Transform.Velocity.X > 0)
+                        {
+                            Transform.Velocity.X = 0;
+                        }
                         break;
                     default:
                         break;
