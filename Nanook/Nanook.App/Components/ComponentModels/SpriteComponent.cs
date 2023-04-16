@@ -9,11 +9,21 @@ namespace Nanook.App.Components.ComponentModels
         private IntPtr texture { get; set; }
         private SDL.SDL_Rect srcRect { get; set; }
         private SDL.SDL_Rect destRect { get; set; }
+
+        private int frames { get; set; } = 0;
+        private int speed { get; set; } = 100;
+        public bool IsAnimated { get; private set; }
+
         public SpriteComponent(string path) 
         {
             SetTexture(path);
         }
-
+        public SpriteComponent(string path, int animationFrames, int animationSpeed)
+        {
+            SetTexture(path);
+            frames = animationFrames;
+            speed = animationSpeed;
+        }
         public override void Init()
         {
             if (!Entity.HasComponent<TransformComponent>())

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Nanook.App.Components
+﻿namespace Nanook.App.Components
 {
     public class Entity
     {
         private HashSet<Component> components { get; set; } = new HashSet<Component>();
         public bool IsActive { get; private set; }
-
         public void Update()
         { 
             foreach (var component in components) 

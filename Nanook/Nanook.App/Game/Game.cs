@@ -1,7 +1,10 @@
 ﻿using Nanook.App.Components;
 using Nanook.App.Components.ComponentModels;
+using Nanook.App.Enums;
+using Nanook.App.Models;
 using Nanook.App.Models.Math;
 using SDL2;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Nanook.App
@@ -78,16 +81,20 @@ namespace Nanook.App
                 throw new InvalidProgramException("Cannot Start SDL Window");
             }
 
+            Map.LoadMap("../../../Maps/debug_map.map", 16, 16);
+
             player = entityComponentManager.AddEntity();
             player.AddComponent<TransformComponent>(new TransformComponent(2));
             player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/BaseCharacter.png"));
             player.AddComponent<KeyboardControlComponent>(new KeyboardControlComponent());
             player.AddComponent<ColliderComponent>(new ColliderComponent("player"));
+            entityComponentManager.AddEntityToGroup(player, new Group(1, GroupNames.GroupMap.ToString()));
 
             wall = entityComponentManager.AddEntity();
             wall.AddComponent<TransformComponent>(new TransformComponent(300.0f, 300.0f, 300, 20, 1));
             wall.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/Dirt.png"));
             wall.AddComponent<ColliderComponent>(new ColliderComponent("wall"));
+            entityComponentManager.AddEntityToGroup(wall, new Group(0, GroupNames.GroupMap.ToString()));
 
         }
 
@@ -125,15 +132,20 @@ namespace Nanook.App
         {
             Entity tile = entityComponentManager.AddEntity();
             tile.AddComponent<TileComponent>(new TileComponent(x, y, 32, 32, id));
-            
+            entityComponentManager.AddEntityToGroup(tile, new Group(0, GroupNames.GroupMap.ToString()));
         }
 
         public void Render()
         {
             SDL.SDL_RenderClear(renderer);
 
-            player?.Draw();
-            wall?.Draw();
+            foreach (var group in entityComponentManager.GetGroups().OrderBy(x => x.Index))
+            {
+                group.Entities.ForEach(entity =>
+                {
+                    entity.Draw();
+                });
+            }
 
             SDL.SDL_RenderPresent(renderer);
         }
