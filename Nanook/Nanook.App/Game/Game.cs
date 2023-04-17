@@ -20,14 +20,6 @@ namespace Nanook.App
             Height = height;
             IsFullScreen = isFullScreen;
 
-            camera = new Camera(new SDL.SDL_Rect()
-            {
-                x = 0,
-                y = 0,
-                w = Width,
-                h = Height
-            });
-
             instance = this;
         }
         public Game(GameBuilderSettings settings)
@@ -38,14 +30,6 @@ namespace Nanook.App
             Width = settings.Width;
             Height = settings.Height;
             IsFullScreen = settings.IsFullScreen;
-
-            camera = new Camera(new SDL.SDL_Rect()
-            {
-                x = 0,
-                y = 0,
-                w = Width,
-                h = Height
-            });
 
             instance = this;
         }
@@ -70,7 +54,6 @@ namespace Nanook.App
         public bool IsFullScreen { get; private set; } = false;
         public bool IsRunning { get; private set; }
 
-        private Camera camera;
         private EntityComponentManager entityComponentManager = new EntityComponentManager();
         private List<ColliderComponent> colliders { get; set; } = new List<ColliderComponent>();
         private IntPtr window { get; set; }
@@ -79,6 +62,7 @@ namespace Nanook.App
 
         Entity? player = null;
         Entity? wall = null;
+        Entity? camera = null;
         public void Init()
         {
 
@@ -101,14 +85,19 @@ namespace Nanook.App
             Map.LoadMap("../../../Maps/debug_map.map", 32, 32);
 
             player = entityComponentManager.AddEntity();
-            player.AddComponent<TransformComponent>(new TransformComponent(2));
+            player.AddComponent<TransformComponent>(new TransformComponent(4));
             player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/player_idle.png", new Dictionary<string, Animation>()
             {
-                { "Idle", new Animation(0, 4, 100)}
+                { "Idle", new Animation(0, 4, 150)}
             }));
             player.AddComponent<KeyboardControlComponent>(new KeyboardControlComponent());
             player.AddComponent<ColliderComponent>(new ColliderComponent("player"));
             entityComponentManager.AddEntityToGroup(player, new Group(1, GroupNames.GroupMap.ToString()));
+
+            camera = entityComponentManager.AddEntity();
+            camera.AddComponent<TransformComponent>(player.GetComponent<TransformComponent>());
+            camera.AddComponent<CameraComponent>(new CameraComponent(Width, Height));
+
 
             //wall = entityComponentManager.AddEntity();
             //wall.AddComponent<TransformComponent>(new TransformComponent(300.0f, 300.0f, 300, 20, 1));
@@ -134,14 +123,13 @@ namespace Nanook.App
         public IntPtr GetRendererReference() => renderer;
         public SDL.SDL_Event GetEventReference() => @event;
         public List<ColliderComponent> GetColliderComponentsReference() => colliders;
-        public Camera GetCameraReference() => camera;
+        public CameraComponent GetCameraReference() => camera!.GetComponent<CameraComponent>();
         public void StopGame() => IsRunning = false;
         public void Update()
         {
             entityComponentManager.Refresh();
             entityComponentManager.Update();
 
-            HandleCamera();
             HandleCollisions();
 
         }
@@ -156,28 +144,6 @@ namespace Nanook.App
                 }
             }
         }
-        private void HandleCamera()
-        {
-            var playerTransform = player!.GetComponent<TransformComponent>();
-            camera.UpdateScreenLocation((int)playerTransform.Position.X - Width / 2, (int)playerTransform.Position.Y - Height / 2);
-            if (camera.Screen.x < 0)
-            {
-                camera.UpdateScreenLocation(x: 0);
-            }
-            if (camera.Screen.y < 0)
-            {
-                camera.UpdateScreenLocation(y: 0);
-            }
-            if (camera.Screen.x > camera.Screen.w)
-            {
-                camera.UpdateScreenLocation(x: camera.Screen.w);
-            }
-            if (camera.Screen.y > camera.Screen.h)
-            {
-                camera.UpdateScreenLocation(y: camera.Screen.h);
-            }
-        }
-
 
         public void AddTile(int srcX, int srcY, int posX, int posY)
         {

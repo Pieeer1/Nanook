@@ -3,7 +3,7 @@
     public class Entity
     {
         private HashSet<Component> components { get; set; } = new HashSet<Component>();
-        public bool IsActive { get; private set; }
+        public bool IsActive { get; private set; } = true;
         public void Update()
         { 
             foreach (var component in components) 

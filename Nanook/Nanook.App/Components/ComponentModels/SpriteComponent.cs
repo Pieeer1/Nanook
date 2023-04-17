@@ -64,7 +64,7 @@ namespace Nanook.App.Components.ComponentModels
             }
 
 
-            destRect = new SDL.SDL_Rect()
+            destRect = new SDL.SDL_Rect() // only moves the player based on camera speed
             {
                 x = (int)transform!.Position.X - Game.Instance.GetCameraReference().Screen.x,
                 y = (int)transform!.Position.Y - Game.Instance.GetCameraReference().Screen.y,
