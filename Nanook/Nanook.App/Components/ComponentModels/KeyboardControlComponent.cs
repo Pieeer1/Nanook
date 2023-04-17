@@ -6,6 +6,7 @@ namespace Nanook.App.Components.ComponentModels
     public class KeyboardControlComponent : Component
     {
         public TransformComponent Transform { get; set; } = null!;
+        public SpriteComponent Sprite { get; set; } = null!;
         public override void Init()
         {
             if (!Entity.HasComponent<TransformComponent>())
@@ -13,6 +14,7 @@ namespace Nanook.App.Components.ComponentModels
                 Entity.AddComponent<TransformComponent>(new TransformComponent());
             }
             Transform = Entity.GetComponent<TransformComponent>();
+            Sprite = Entity.GetComponent<SpriteComponent>();
         }
 
         public override void Update() 
@@ -28,12 +30,14 @@ namespace Nanook.App.Components.ComponentModels
                         break;
                     case SDL.SDL_Keycode.SDLK_a:
                         Transform.Velocity.X = -1;
+                        Sprite.FlipFlag = SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
                         break;
                     case SDL.SDL_Keycode.SDLK_s:
                         Transform.Velocity.Y = 1;
                         break;
                     case SDL.SDL_Keycode.SDLK_d:
                         Transform.Velocity.X = 1;
+                        Sprite.FlipFlag = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
                         break;
                     default:
                         break;

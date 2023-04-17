@@ -1,4 +1,5 @@
 ﻿using Nanook.App.Extensions;
+using Nanook.App.Models;
 using SDL2;
 
 namespace Nanook.App.Components.ComponentModels
@@ -10,19 +11,27 @@ namespace Nanook.App.Components.ComponentModels
         private SDL.SDL_Rect srcRect { get; set; }
         private SDL.SDL_Rect destRect { get; set; }
 
-        private int frames { get; set; } = 0;
-        private int speed { get; set; } = 100;
+        private int speed;
+        private int frames;
+        private int animationIndex { get; set; }
+        private Dictionary<string, Animation> animationDictionary { get; set; } = new Dictionary<string, Animation>();
         public bool IsAnimated { get; private set; }
+        public SDL.SDL_RendererFlip FlipFlag { get; set; } = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
 
         public SpriteComponent(string path) 
         {
             SetTexture(path);
         }
-        public SpriteComponent(string path, int animationFrames, int animationSpeed)
+        public SpriteComponent(string path, Dictionary<string, Animation> animations)
         {
             SetTexture(path);
-            frames = animationFrames;
-            speed = animationSpeed;
+
+            foreach (KeyValuePair<string, Animation> kvp in animations)
+            {
+                animationDictionary.Add(kvp.Key, kvp.Value);
+            }
+            PlayAnimation(animations.Keys.First());
+            IsAnimated = true;
         }
         public override void Init()
         {
@@ -43,6 +52,18 @@ namespace Nanook.App.Components.ComponentModels
 
         public override void Update()
         {
+            if (IsAnimated)
+            {
+                srcRect = new SDL.SDL_Rect()
+                {
+                    x = srcRect.w * (int)((SDL.SDL_GetTicks() / speed) % frames),
+                    y = animationIndex * transform!.Height,
+                    w = srcRect.w,
+                    h = srcRect.h
+                };
+            }
+
+
             destRect = new SDL.SDL_Rect()
             {
                 x = (int)transform!.Position.X,
@@ -55,11 +76,17 @@ namespace Nanook.App.Components.ComponentModels
 
         public override void Draw()
         {
-            TextureExtension.DrawTexture(texture, srcRect, destRect);
+            TextureExtension.DrawTexture(texture, srcRect, destRect, FlipFlag);
         }
         public void SetTexture(string path)
         { 
             texture = TextureExtension.LoadTexture(path);
+        }
+        public void PlayAnimation(string animationName)
+        {
+            frames = animationDictionary[animationName].Frames;
+            animationIndex = animationDictionary[animationName].Index;
+            speed = animationDictionary[animationName].Speed;
         }
     }
 }

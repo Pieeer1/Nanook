@@ -85,7 +85,10 @@ namespace Nanook.App
 
             player = entityComponentManager.AddEntity();
             player.AddComponent<TransformComponent>(new TransformComponent(2));
-            player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/BaseCharacter.png"));
+            player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/player_idle.png", new Dictionary<string, Animation>()
+            {
+                { "Idle", new Animation(0, 4, 100)}
+            }));
             player.AddComponent<KeyboardControlComponent>(new KeyboardControlComponent());
             player.AddComponent<ColliderComponent>(new ColliderComponent("player"));
             entityComponentManager.AddEntityToGroup(player, new Group(1, GroupNames.GroupMap.ToString()));

@@ -7,9 +7,10 @@ namespace Nanook.App.Extensions
         {
             return SDL_image.IMG_LoadTexture(Game.Instance.GetRendererReference(), fileName);
         }
-        public static void DrawTexture(IntPtr texture, SDL.SDL_Rect srcRect, SDL.SDL_Rect destRect)
+        public static void DrawTexture(IntPtr texture, SDL.SDL_Rect srcRect, SDL.SDL_Rect destRect, SDL.SDL_RendererFlip flip)
         {
-            SDL.SDL_RenderCopy(Game.Instance.GetRendererReference(),texture, ref srcRect, ref destRect);
+            SDL.SDL_Point refPoint = new SDL.SDL_Point();
+            SDL.SDL_RenderCopyEx(Game.Instance.GetRendererReference(),texture, ref srcRect, ref destRect, 0.0d, ref refPoint, flip);
         }
     }
 }
