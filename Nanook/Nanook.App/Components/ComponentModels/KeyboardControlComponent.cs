@@ -71,6 +71,9 @@ namespace Nanook.App.Components.ComponentModels
                             Transform.Velocity.X = 0;
                         }
                         break;
+                    case SDL.SDL_Keycode.SDLK_ESCAPE:
+                        Game.Instance.StopGame();
+                        break;
                     default:
                         break;
                 }

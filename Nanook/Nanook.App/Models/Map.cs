@@ -12,7 +12,8 @@
                 string[] values = map[y].Split(',');
                 for (int x = 0; x < values.Length; x++)
                 {
-                    Game.Instance.AddTile(int.Parse(values[x]), x * 32, y * 32);
+
+                    Game.Instance.AddTile(int.Parse(values[x][1].ToString())*32, int.Parse(values[x][0].ToString())*32, x * 32, y * 32);
                 }
             }
             

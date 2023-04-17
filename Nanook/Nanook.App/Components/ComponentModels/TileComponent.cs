@@ -1,43 +1,48 @@
-﻿using SDL2;
+﻿using Nanook.App.Extensions;
+using Nanook.App.Models.Math;
+using SDL2;
 namespace Nanook.App.Components.ComponentModels
 {
     public class TileComponent : Component
     {
-        public TransformComponent Transform { get; set; } = null!;
-        public SpriteComponent Sprite { get; set; } = null!;
-
-        public SDL.SDL_Rect TileRect { get; set; }
-        public int TileId { get; set; }
-        public string Path { get; set; }
-
-        public TileComponent(int x, int y, int w, int h, int id)
+        public IntPtr texture;
+        public SDL.SDL_Rect srcRect;
+        public SDL.SDL_Rect destRect;
+        public Vector2 Position { get; set; } = Vector2.Zero;
+        public TileComponent(int srcX, int srcY, int xPos, int yPos, string path)
         {
-            TileRect = new SDL.SDL_Rect()
+            texture = TextureExtension.LoadTexture(path);
+
+            Position = new Vector2(xPos, yPos);
+
+            srcRect = new SDL.SDL_Rect()
             {
-                x = x,
-                y = y,
-                w = w,
-                h = h
+                x = srcX,
+                y = srcY,
+                w = 32,
+                h = 32,
             };
-            TileId = id;
-
-            Path = PathFromId(id);
-
+            destRect = new SDL.SDL_Rect()
+            {
+                x = xPos,
+                y = yPos,
+                w = 32,
+                h = 32,
+            };
         }
-        public override void Init()
+        public override void Update()
         {
-            Transform = Entity.AddComponent<TransformComponent>(new TransformComponent(TileRect.x, TileRect.y, TileRect.h, TileRect.w, 1));
-            Sprite = Entity.AddComponent<SpriteComponent>(new SpriteComponent(Path));
+            destRect = new SDL.SDL_Rect()
+            {
+                x = (int)(Position.X - Game.Instance.GetCameraReference().Screen.x),
+                y = (int)(Position.Y - Game.Instance.GetCameraReference().Screen.y),
+                w = destRect.w,
+                h = destRect.h
+            };
         }
-
-
-
-        private string PathFromId(int id) => id switch
+        public override void Draw()
         {
-            0 => "../../../Sprites/Water.png",
-            1 => "../../../Sprites/Dirt.png",
-            2 => "../../../Sprites/Grass.png",
-            _ => throw new InvalidOperationException($"Cannot find Sprite with ID {id}")
-        };
+            TextureExtension.DrawTexture(texture, srcRect, destRect, SDL.SDL_RendererFlip.SDL_FLIP_NONE);
+        }
     }
 }
