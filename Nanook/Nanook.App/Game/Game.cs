@@ -134,8 +134,8 @@ namespace Nanook.App
                 {
                     var playerCollider = player!.GetComponent<ColliderComponent>().Collider;
                     Hit? collided = CollisionExtension.IntersectAABB(
-                        new AABB(new Vector2(playerCollider.x + (playerCollider.w/2), playerCollider.y - (playerCollider.h/2)), new Vector2(playerCollider.w/2, playerCollider.y/2)), 
-                        new AABB(new Vector2(cc.Collider.x + (cc.Collider.w/2), cc.Collider.y - (cc.Collider.h/2)), new Vector2(cc.Collider.w / 2, cc.Collider.y / 2)));
+                        new AABB(new Vector2(playerCollider.x + (playerCollider.w/2), playerCollider.y - (playerCollider.h/2)), new Vector2(playerCollider.w/2, playerCollider.h/2)), 
+                        new AABB(new Vector2(cc.Collider.x + (cc.Collider.w/2), cc.Collider.y - (cc.Collider.h/2)), new Vector2(cc.Collider.w / 2, cc.Collider.h / 2)));
                     if (collided != null  && cc.Tag == "tile")
                     {
                         Debug.WriteLine($" {cc.Tag} : ({collided.Position.X} : {collided.Position.Y}) ");
