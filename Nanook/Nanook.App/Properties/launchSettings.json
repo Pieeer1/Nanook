@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Nanook.App": {
+      "commandName": "Project"
+    },
+    "VisualDebug Nanook.App": {
+      "commandName": "Project",
+      "commandLineArgs": "--invis-off"
+    }
+  }
+}

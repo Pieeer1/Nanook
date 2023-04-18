@@ -1,6 +1,7 @@
 ﻿using Nanook.App.Extensions;
 using Nanook.App.Models;
 using SDL2;
+using System.Diagnostics;
 
 namespace Nanook.App.Components.ComponentModels
 {
@@ -16,15 +17,14 @@ namespace Nanook.App.Components.ComponentModels
         private int animationIndex { get; set; }
         private Dictionary<string, Animation> animationDictionary { get; set; } = new Dictionary<string, Animation>();
         public bool IsAnimated { get; private set; }
-        public CameraComponent? CameraToMap { get; private set; }
         public SDL.SDL_RendererFlip FlipFlag { get; set; } = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
 
-        public SpriteComponent(string path, CameraComponent? cameraToMap = null) 
+        public SpriteComponent(string path) 
         {
             SetTexture(path);
-            CameraToMap = cameraToMap;
+
         }
-        public SpriteComponent(string path, Dictionary<string, Animation> animations, CameraComponent? cameraToMap = null)
+        public SpriteComponent(string path, Dictionary<string, Animation> animations)
         {
             SetTexture(path);
 
@@ -34,7 +34,7 @@ namespace Nanook.App.Components.ComponentModels
             }
             PlayAnimation(animations.Keys.First());
             IsAnimated = true;
-            CameraToMap = cameraToMap;
+
         }
         public override void Init()
         {
@@ -69,12 +69,12 @@ namespace Nanook.App.Components.ComponentModels
 
             destRect = new SDL.SDL_Rect() // only based on camera speed if camera exists
             {
-                x = (int)transform!.Position.X - (CameraToMap?.Screen.x ?? 0),
-                y = (int)transform!.Position.Y - (CameraToMap?.Screen.y ?? 0),
+                x = (int)transform!.Position.X - (Game.Instance.GetCameraReference()?.Screen.x ?? 0),
+                y = (int)transform!.Position.Y - (Game.Instance.GetCameraReference()?.Screen.y ?? 0),
                 w = transform.Width * transform.Scale,
                 h = transform.Height * transform.Scale
             };
-
+            
         }
 
         public override void Draw()

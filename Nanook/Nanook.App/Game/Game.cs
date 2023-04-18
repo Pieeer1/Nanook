@@ -5,13 +5,12 @@ using Nanook.App.Models;
 using Nanook.App.Models.Math;
 using SDL2;
 using System.Diagnostics;
-using System.Numerics;
 
 namespace Nanook.App
 {
     public sealed class Game
     {
-        public Game(string title, int xPosition, int yPosition, int width, int height, bool isFullScreen)
+        public Game(string title, int xPosition, int yPosition, int width, int height, bool isFullScreen, bool showColliders)
         {
             Title = title;
             XPosition = xPosition;
@@ -19,6 +18,7 @@ namespace Nanook.App
             Width = width;
             Height = height;
             IsFullScreen = isFullScreen;
+            ShowColliders = showColliders;
 
             instance = this;
         }
@@ -30,6 +30,7 @@ namespace Nanook.App
             Width = settings.Width;
             Height = settings.Height;
             IsFullScreen = settings.IsFullScreen;
+            ShowColliders = settings.ShowColliders;
 
             instance = this;
         }
@@ -53,7 +54,7 @@ namespace Nanook.App
         public int Height { get; private set; } = 640;
         public bool IsFullScreen { get; private set; } = false;
         public bool IsRunning { get; private set; }
-
+        public bool ShowColliders { get; private set; }
         private CameraComponent? camera = null;
         private EntityComponentManager entityComponentManager = new EntityComponentManager();
         private List<ColliderComponent> colliders { get; set; } = new List<ColliderComponent>();
@@ -71,7 +72,7 @@ namespace Nanook.App
             {
                 window = SDL.SDL_CreateWindow(Title, XPosition, YPosition, Width, Height, IsFullScreen ? SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN : 0);
 
-                renderer = SDL.SDL_CreateRenderer(window, -1, 0);
+                renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
 
                 SDL.SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
@@ -112,6 +113,7 @@ namespace Nanook.App
         public IntPtr GetRendererReference() => renderer;
         public SDL.SDL_Event GetEventReference() => @event;
         public List<ColliderComponent> GetColliderComponentsReference() => colliders;
+        public EntityComponentManager GetEntityComponenteManagerReference() => entityComponentManager;
         public CameraComponent? GetCameraReference() => camera;
         public void StopGame() => IsRunning = false;
         public void Update()
@@ -124,13 +126,17 @@ namespace Nanook.App
         }
         private void HandleCollisions()
         {
+
             foreach (ColliderComponent cc in colliders)
             {
                 if (cc.Tag != player?.GetComponent<ColliderComponent>().Tag)
                 {
-                    if (Collision.AABBIsColliding(player?.GetComponent<ColliderComponent>() ?? throw new NullReferenceException("Player Does not Exist"), cc) && cc.Tag == "ground")
+                    bool IsColliding = Collision.AABBIsColliding(player?.GetComponent<ColliderComponent>() ?? throw new NullReferenceException("Player Does not Exist"), cc);
+                    if (IsColliding  && cc.Tag == "tile")
                     {
+                        Debug.WriteLine(Collision.GetCollidingWall(player?.GetComponent<ColliderComponent>().Collider?? new SDL.SDL_Rect(), cc.Collider));
                         player.GetComponent<PlayerComponent>().IsGrounded = true;
+                        //player.GetComponent<TransformComponent>().Velocity *= Models.Math.Vector2.Zero;
                     }
                 }
             }
@@ -143,7 +149,7 @@ namespace Nanook.App
             if (tileObj.HasCollision)
             {
                 tile.AddComponent<TransformComponent>(new TransformComponent(tileObj.Position.X*32, tileObj.Position.Y*32));
-                tile.AddComponent<ColliderComponent>(new ColliderComponent("ground"));
+                tile.AddComponent<ColliderComponent>(new ColliderComponent("tile"));
             }
             entityComponentManager.AddEntityToGroup(tile, new Group(0, GroupNames.GroupMap.ToString()));
         }

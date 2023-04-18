@@ -8,5 +8,6 @@
         public int Width { get; set; } = 800;
         public int Height { get; set; } = 640;
         public bool IsFullScreen { get; set; } = false;
+        public bool ShowColliders { get; set; } = false;
     }
 }
