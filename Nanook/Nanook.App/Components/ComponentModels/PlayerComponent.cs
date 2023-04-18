@@ -1,7 +1,5 @@
 ﻿using Nanook.App.Models;
-using Nanook.App.Models.Math;
 using SDL2;
-using System.Numerics;
 
 namespace Nanook.App.Components.ComponentModels
 {
@@ -30,49 +28,17 @@ namespace Nanook.App.Components.ComponentModels
                     switch (@event.key.keysym.sym)
                     {
                         case SDL.SDL_Keycode.SDLK_w:
-                            bool canMove = true;
-                            foreach (var cc in Game.Instance.GetColliderComponentsReference())
-                            {
-                                if (Collision.GetCollidingWall(Entity.GetComponent<ColliderComponent>().Collider, cc.Collider) == 3)
-                                {
-                                    canMove = false;
-                                }
-                            }
-                            Transform.Velocity.Y = canMove ? -1 : 0;
+                            Transform.Velocity.Y = -1;
                             break;
                         case SDL.SDL_Keycode.SDLK_a:
-                            canMove = true;
-                            foreach (var cc in Game.Instance.GetColliderComponentsReference())
-                            {
-                                if (Collision.GetCollidingWall(Entity.GetComponent<ColliderComponent>().Collider, cc.Collider) == 2)
-                                {
-                                    canMove = false;
-                                }
-                            }
-                            Transform.Velocity.X = canMove ? -1 : 0;
+                            Transform.Velocity.X = -1;
                             Sprite.FlipFlag = SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
                             break;
                         case SDL.SDL_Keycode.SDLK_s:
-                            canMove = true;
-                            foreach (var cc in Game.Instance.GetColliderComponentsReference())
-                            {
-                                if (Collision.GetCollidingWall(Entity.GetComponent<ColliderComponent>().Collider, cc.Collider) == 1)
-                                {
-                                    canMove = false;
-                                }
-                            }
-                            Transform.Velocity.Y = canMove ? 1 : 0;
+                            Transform.Velocity.Y = 1;
                             break;
                         case SDL.SDL_Keycode.SDLK_d:
-                            canMove = true;
-                            foreach (var cc in Game.Instance.GetColliderComponentsReference())
-                            {
-                                if (Collision.GetCollidingWall(Entity.GetComponent<ColliderComponent>().Collider, cc.Collider) == 0)
-                                {
-                                    canMove = false;
-                                }
-                            }
-                            Transform.Velocity.X = canMove ? 1 : 0;
+                            Transform.Velocity.X = 1;
                             Sprite.FlipFlag = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
                             break;
                         default:

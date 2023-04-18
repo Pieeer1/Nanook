@@ -58,5 +58,23 @@
         {
             return v1.Divide(v2);
         }
+
+        public float Normalize()
+        {
+            float fullLength = X * X + Y * Y;
+            if (fullLength > 0)
+            {
+                fullLength = MathF.Sqrt(fullLength);
+                float inverseLength = 1.0f / fullLength;
+                X *= inverseLength;
+                Y *= inverseLength;
+            }
+            else
+            {
+                X = 1;
+                Y = 0;
+            }
+            return fullLength;
+        }
     }
 }

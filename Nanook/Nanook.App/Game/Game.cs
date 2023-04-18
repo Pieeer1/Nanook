@@ -3,6 +3,7 @@ using Nanook.App.Components.ComponentModels;
 using Nanook.App.Enums;
 using Nanook.App.Models;
 using Nanook.App.Models.Math;
+using Nanook.App.Models.Math.Collision;
 using SDL2;
 using System.Diagnostics;
 
@@ -131,11 +132,14 @@ namespace Nanook.App
             {
                 if (cc.Tag != player?.GetComponent<ColliderComponent>().Tag)
                 {
-                    bool IsColliding = Collision.AABBIsColliding(player?.GetComponent<ColliderComponent>() ?? throw new NullReferenceException("Player Does not Exist"), cc);
-                    if (IsColliding  && cc.Tag == "tile")
+                    var playerCollider = player!.GetComponent<ColliderComponent>().Collider;
+                    Hit? collided = CollisionExtension.IntersectAABB(
+                        new AABB(new Vector2(playerCollider.x + playerCollider.w/2, playerCollider.y - playerCollider.h/2), new Vector2(playerCollider.w/2, playerCollider.y/2)), 
+                        new AABB(new Vector2(cc.Collider.x + cc.Collider.w/2, cc.Collider.y - cc.Collider.h/2), new Vector2(cc.Collider.w / 2, cc.Collider.y / 2)));
+                    if (collided != null  && cc.Tag == "tile")
                     {
-                        Debug.WriteLine(Collision.GetCollidingWall(player?.GetComponent<ColliderComponent>().Collider?? new SDL.SDL_Rect(), cc.Collider));
-                        player.GetComponent<PlayerComponent>().IsGrounded = true;
+                        Debug.WriteLine($" {cc.Tag} : ({collided.Position.X} : {collided.Position.Y}) ");
+                        player!.GetComponent<PlayerComponent>().IsGrounded = true;
                         //player.GetComponent<TransformComponent>().Velocity *= Models.Math.Vector2.Zero;
                     }
                 }
