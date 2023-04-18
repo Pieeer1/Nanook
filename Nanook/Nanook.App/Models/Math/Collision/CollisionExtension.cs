@@ -135,64 +135,64 @@ namespace Nanook.App.Models.Math.Collision
                 hit.Delta.Y = py * sy;
                 hit.Normal.Y = sy;
                 hit.Position.X = aabb2.Position.X;
-                hit.Position.Y = aabb.Position.Y - (aabb.Half.Y / 2 * sy);
+                hit.Position.Y = aabb.Position.Y - (aabb.Half.Y * sy);
             }
             return hit;
         }
-        ///// <summary>
-        ///// sweepAABB finds the intersection of this box and another moving box, where the delta argument is a point describing the movement of the box. 
-        ///// It returns a Sweep object. sweep.hit will be a Hit object if the two collided, or null if they did not overlap.
-        ///// </summary>
+        /// <summary>
+        /// sweepAABB finds the intersection of this box and another moving box, where the delta argument is a point describing the movement of the box. 
+        /// It returns a Sweep object. sweep.hit will be a Hit object if the two collided, or null if they did not overlap.
+        /// </summary>
 
-        //public static Sweep SweepAABB(this AABB aabb, AABB aabb2, Vector2 delta)
-        //{ 
-        //    Sweep sweep = new Sweep();
-        //    if (delta.X == 0 && delta.Y == 0) // if sweep is not moving, just do static test
-        //    {
-        //        sweep.Position.X = rect1.x;
-        //        sweep.Position.Y = rect1.y;
-        //        sweep.Hit = rect1.IntersectAABB(rect2);
-        //        sweep.Time = sweep.Hit != null ? (sweep.Hit.Time = 0) : 1;
-        //        return sweep;
-        //    }
-        //    sweep.Hit = rect1.IntersectSegment(new Vector2(rect2.x, rect2.y), delta, rect2.x / 2, rect2.y / 2);
-        //    if (sweep.Hit is not null)
-        //    {
-        //        sweep.Time = MathFExtensions.Clamp(sweep.Hit.Time - (1e-8f), 0, 1);
-        //        sweep.Position.X = rect2.x + delta.X * sweep.Time;
-        //        sweep.Position.Y = rect2.y + delta.Y * sweep.Time;
-        //        Vector2 direction = new Vector2(delta.X, delta.Y);
-        //        direction.Normalize();
-        //        sweep.Hit.Position.X = MathFExtensions.Clamp(sweep.Hit.Position.X + direction.X * (rect2.x / 2), rect1.x - (rect1.x / 2), rect1.x + (rect1.x / 2));
-        //        sweep.Hit.Position.Y = MathFExtensions.Clamp(sweep.Hit.Position.Y + direction.Y * (rect2.x / 2), rect1.y - (rect1.y / 2), rect1.y + (rect1.y / 2));
-        //    }
-        //    else
-        //    {
-        //        sweep.Position.X = rect2.x + delta.X;
-        //        sweep.Position.Y = rect2.y + delta.Y;
-        //        sweep.Time = 1;
-        //    }
-        //    return sweep;
-        //}
-        ///// <summary>
-        ///// AABB we want to move from one point to another, without allowing it to collide with a list of static AABBs
-        ///// </summary>
+        public static Sweep SweepAABB(this AABB aabb, AABB aabb2, Vector2 delta)
+        {
+            Sweep sweep = new Sweep();
+            if (delta.X == 0 && delta.Y == 0) // if sweep is not moving, just do static test
+            {
+                sweep.Position.X = aabb.Position.X;
+                sweep.Position.Y = aabb.Position.Y;
+                sweep.Hit = aabb.IntersectAABB(aabb2);
+                sweep.Time = sweep.Hit != null ? (sweep.Hit.Time = 0) : 1;
+                return sweep;
+            }
+            sweep.Hit = aabb.IntersectSegment(new Vector2(aabb2.Position.X, aabb2.Position.Y), delta, aabb2.Half.X, aabb2.Half.Y);
+            if (sweep.Hit is not null)
+            {
+                sweep.Time = MathFExtensions.Clamp(sweep.Hit.Time - (1e-8f), 0, 1);
+                sweep.Position.X = aabb2.Position.X + delta.X * sweep.Time;
+                sweep.Position.Y = aabb2.Position.Y + delta.Y * sweep.Time;
+                Vector2 direction = new Vector2(delta.X, delta.Y);
+                direction.Normalize();
+                sweep.Hit.Position.X = MathFExtensions.Clamp(sweep.Hit.Position.X + direction.X * aabb2.Half.X, aabb.Position.X - aabb.Half.X, aabb.Position.X + aabb.Half.X);
+                sweep.Hit.Position.Y = MathFExtensions.Clamp(sweep.Hit.Position.Y + direction.Y * aabb.Half.Y, aabb2.Position.Y - aabb.Half.Y, aabb.Position.Y + aabb.Half.Y);
+            }
+            else
+            {
+                sweep.Position.X = aabb2.Position.X + delta.X;
+                sweep.Position.Y = aabb2.Position.Y + delta.Y;
+                sweep.Time = 1;
+            }
+            return sweep;
+        }
+        /// <summary>
+        /// AABB we want to move from one point to another, without allowing it to collide with a list of static AABBs
+        /// </summary>
 
-        //public static Sweep SweepInto(this AABB aabb, AABB colliders, Vector2 delta)
-        //{
-        //    Sweep nearest = new Sweep();
-        //    nearest.Time = 1.0f;
-        //    nearest.Position.X = rect1.x + delta.X;
-        //    nearest.Position.Y = rect1.y + delta.Y;
-        //    for (int i = 0; i < colliders.Length; i++)
-        //    {
-        //        Sweep sweep = colliders[i].SweepAABB(rect1, delta);
-        //        if (sweep.Time < nearest.Time)
-        //        {
-        //            nearest = sweep;
-        //        }
-        //    }
-        //    return nearest;
-        //}
+        public static Sweep SweepInto(this AABB aabb, AABB[] colliders, Vector2 delta)
+        {
+            Sweep nearest = new Sweep();
+            nearest.Time = 1.0f;
+            nearest.Position.X = aabb.Position.X + delta.X;
+            nearest.Position.Y = aabb.Position.Y + delta.Y;
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Sweep sweep = colliders[i].SweepAABB(aabb, delta);
+                if (sweep.Time < nearest.Time)
+                {
+                    nearest = sweep;
+                }
+            }
+            return nearest;
+        }
     }
 }
