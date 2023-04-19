@@ -28,9 +28,14 @@ namespace Nanook.App.Models
             {
                 for (int y = 0; y < ySize; y++)
                 {
-                    if(y > 5)
+
+                    if (y > 5)
                     {
-                        Tiles.Add(GetTileFromTileSheetIndex((uint)rand.Next(0, 2), x, y));
+                        Tiles.Add(GetTileFromTileSheetIndex((uint)rand.Next(1, 3), x, y));
+                    }
+                    else
+                    {
+                        Tiles.Add(GetTileFromTileSheetIndex(0, x, y));
                     }
                 }
             }
@@ -44,8 +49,9 @@ namespace Nanook.App.Models
         }
         public Tile GetTileFromTileSheetIndex(uint index, int xpos, int ypos) => index switch
         {
-            0 => new Tile(index, "../../../Sprites/basic_tilesheet.png", "Grass", new Math.Vector2(xpos, ypos), true),
-            1 => new Tile(index, "../../../Sprites/basic_tilesheet.png", "Grass", new Math.Vector2(xpos, ypos), true),
+            0 => new Tile(index, "../../../Sprites/basic_tilesheet.png", "Grass", new Math.Vector2(xpos, ypos), false),
+            1 => new Tile(index, "../../../Sprites/basic_tilesheet.png", "Dirt", new Math.Vector2(xpos, ypos), true),
+            2 => new Tile(index, "../../../Sprites/basic_tilesheet.png", "Grass", new Math.Vector2(xpos, ypos), true),
             _ => throw new NullReferenceException("Invalid index")
         };
 

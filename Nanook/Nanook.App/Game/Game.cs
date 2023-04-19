@@ -85,7 +85,7 @@ namespace Nanook.App
             }
 
             Map map = new Map();
-            map.GenerateNewRandomDistributionMap(16, 16);
+            map.GenerateNewRandomDistributionMap(32, 16);
             map.LoadMap();
 
             player = entityComponentManager.AddEntity();
@@ -130,13 +130,12 @@ namespace Nanook.App
 
             foreach (ColliderComponent cc in colliders)
             {
+
                 if (cc.Tag != player?.GetComponent<ColliderComponent>().Tag)
                 {
                     var playerCollider = player!.GetComponent<ColliderComponent>().Collider;
-                    Hit? collided = CollisionExtension.IntersectAABB(
-                        new AABB(new Vector2(playerCollider.x + (playerCollider.w/2), playerCollider.y - (playerCollider.h/2)), new Vector2(playerCollider.w/2, playerCollider.h/2)), 
-                        new AABB(new Vector2(cc.Collider.x + (cc.Collider.w/2), cc.Collider.y - (cc.Collider.h/2)), new Vector2(cc.Collider.w / 2, cc.Collider.h / 2)));
-                    if (collided != null  && cc.Tag == "tile")
+                    Hit? collided = playerCollider.GetAABBFromSDLRect().IntersectAABB(cc.Collider.GetAABBFromSDLRect());
+                    if (collided != null && cc.Tag == "tile")
                     {
                         Debug.WriteLine($" {cc.Tag} : ({collided.Position.X} : {collided.Position.Y}) ");
                         player!.GetComponent<PlayerComponent>().IsGrounded = true;
