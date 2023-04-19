@@ -121,28 +121,6 @@ namespace Nanook.App
         {
             entityComponentManager.Refresh();
             entityComponentManager.Update();
-
-            HandleCollisions();
-
-        }
-        private void HandleCollisions()
-        {
-
-            foreach (ColliderComponent cc in colliders)
-            {
-
-                if (cc.Tag != player?.GetComponent<ColliderComponent>().Tag)
-                {
-                    var playerCollider = player!.GetComponent<ColliderComponent>().Collider;
-                    Hit? collided = playerCollider.GetAABBFromSDLRect().IntersectAABB(cc.Collider.GetAABBFromSDLRect());
-                    if (collided != null && cc.Tag == "tile")
-                    {
-                        Debug.WriteLine($" {cc.Tag} : ({collided.Position.X} : {collided.Position.Y}) ");
-                        player!.GetComponent<PlayerComponent>().IsGrounded = true;
-                        //player.GetComponent<TransformComponent>().Velocity *= Models.Math.Vector2.Zero;
-                    }
-                }
-            }
         }
 
         public void AddTile(Tile tileObj)

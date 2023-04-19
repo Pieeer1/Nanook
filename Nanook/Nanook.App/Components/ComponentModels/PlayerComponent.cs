@@ -1,5 +1,8 @@
 ﻿using Nanook.App.Models;
+using Nanook.App.Models.Math;
+using Nanook.App.Models.Math.Collision;
 using SDL2;
+using System.Diagnostics;
 
 namespace Nanook.App.Components.ComponentModels
 {
@@ -89,6 +92,34 @@ namespace Nanook.App.Components.ComponentModels
         }
         public override void Update()
         {
+            IsGrounded = false;
+            IsLeftColliding = false;
+            IsRightColliding = false;
+            IsTopColliding = false;
+            foreach (ColliderComponent cc in Game.Instance.GetColliderComponentsReference().Where(x => x.Tag != "player"))
+            {
+                Hit? hit = Entity.GetComponent<ColliderComponent>().Collider.GetAABBFromSDLRect().IntersectAABB(cc.Collider.GetAABBFromSDLRect());
+                TransformComponent transform = Entity.GetComponent<TransformComponent>();
+                ColliderComponent collider = Entity.GetComponent<ColliderComponent>();
+                if (hit is not null && hit.Position.Y == transform.Position.Y)
+                {
+                    IsGrounded = true;
+                }
+                else if (hit is not null && hit.Position.X == transform.Position.X)
+                { 
+                    IsLeftColliding = true;
+                }
+                else if (hit is not null && hit.Position.X == transform.Position.X + collider.Collider.w)
+                {
+                    IsRightColliding = true;
+                }
+                else if (hit is not null && hit.Position.Y == transform.Position.Y + collider.Collider.h)
+                {
+                    IsTopColliding = true;
+                }
+            }
+
+            
             if (!IsGrounded)
             {
                 Entity.GetComponent<TransformComponent>().Position += new Models.Math.Vector2(0, 3f);
@@ -108,6 +139,9 @@ namespace Nanook.App.Components.ComponentModels
         private int _cameraWidth { get; set; }
         private int _cameraHeight { get; set; }
 
-        public bool IsGrounded { get; set; } = false;
+        private bool IsGrounded { get; set; } = false;
+        private bool IsLeftColliding { get; set; } = false;
+        private bool IsRightColliding { get; set; } = false;
+        private bool IsTopColliding { get; set; } = false;
     }
 }
