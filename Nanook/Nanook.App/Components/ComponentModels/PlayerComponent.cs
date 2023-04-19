@@ -103,14 +103,22 @@ namespace Nanook.App.Components.ComponentModels
                 ColliderComponent collider = Entity.GetComponent<ColliderComponent>();
                 if (hit is not null && hit.Position.Y == transform.Position.Y)
                 {
-                    IsGrounded = true;
+                    IsGrounded = true;                   
                 }
                 else if (hit is not null && hit.Position.X == transform.Position.X)
-                { 
+                {
+                    if (transform.Velocity.X < 1.0f)
+                    {
+                        transform.Velocity.X = 0.0f;
+                    }
                     IsLeftColliding = true;
                 }
                 else if (hit is not null && hit.Position.X == transform.Position.X + collider.Collider.w)
                 {
+                    if (transform.Velocity.X > 1.0f)
+                    {
+                        transform.Velocity.X = 0.0f;
+                    }
                     IsRightColliding = true;
                 }
                 else if (hit is not null && hit.Position.Y == transform.Position.Y + collider.Collider.h)
