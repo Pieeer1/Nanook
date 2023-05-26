@@ -17,7 +17,8 @@ public class Program
             YPosition = SDL.SDL_WINDOWPOS_CENTERED,
             Width = 840,
             Height = 600,
-            IsFullScreen = false
+            IsFullScreen = false,
+            ShowColliders = args.Contains("--invis-off")
         });
 
         game.Init();

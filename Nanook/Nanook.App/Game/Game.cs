@@ -3,15 +3,15 @@ using Nanook.App.Components.ComponentModels;
 using Nanook.App.Enums;
 using Nanook.App.Models;
 using Nanook.App.Models.Math;
+using Nanook.App.Models.Math.Collision;
 using SDL2;
 using System.Diagnostics;
-using System.Numerics;
 
 namespace Nanook.App
 {
     public sealed class Game
     {
-        public Game(string title, int xPosition, int yPosition, int width, int height, bool isFullScreen)
+        public Game(string title, int xPosition, int yPosition, int width, int height, bool isFullScreen, bool showColliders)
         {
             Title = title;
             XPosition = xPosition;
@@ -19,6 +19,7 @@ namespace Nanook.App
             Width = width;
             Height = height;
             IsFullScreen = isFullScreen;
+            ShowColliders = showColliders;
 
             instance = this;
         }
@@ -30,6 +31,7 @@ namespace Nanook.App
             Width = settings.Width;
             Height = settings.Height;
             IsFullScreen = settings.IsFullScreen;
+            ShowColliders = settings.ShowColliders;
 
             instance = this;
         }
@@ -53,7 +55,8 @@ namespace Nanook.App
         public int Height { get; private set; } = 640;
         public bool IsFullScreen { get; private set; } = false;
         public bool IsRunning { get; private set; }
-
+        public bool ShowColliders { get; private set; }
+        private CameraComponent? camera = null;
         private EntityComponentManager entityComponentManager = new EntityComponentManager();
         private List<ColliderComponent> colliders { get; set; } = new List<ColliderComponent>();
         private IntPtr window { get; set; }
@@ -62,7 +65,6 @@ namespace Nanook.App
 
         Entity? player = null;
         Entity? wall = null;
-        Entity? camera = null;
         public void Init()
         {
 
@@ -71,7 +73,7 @@ namespace Nanook.App
             {
                 window = SDL.SDL_CreateWindow(Title, XPosition, YPosition, Width, Height, IsFullScreen ? SDL.SDL_WindowFlags.SDL_WINDOW_FULLSCREEN : 0);
 
-                renderer = SDL.SDL_CreateRenderer(window, -1, 0);
+                renderer = SDL.SDL_CreateRenderer(window, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED);
 
                 SDL.SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
@@ -82,28 +84,17 @@ namespace Nanook.App
                 throw new InvalidProgramException("Cannot Start SDL Window");
             }
 
-            Map.LoadMap("../../../Maps/debug_map.map", 32, 32);
+            Map map = new Map();
+            map.GenerateNewRandomDistributionMap(32, 16);
+            map.LoadMap();
 
             player = entityComponentManager.AddEntity();
-            player.AddComponent<TransformComponent>(new TransformComponent(4));
-            player.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/player_idle.png", new Dictionary<string, Animation>()
+            player.AddComponent<PlayerComponent>(new PlayerComponent(4, "../../../Sprites/player_idle.png", new Dictionary<string, Animation>()
             {
-                { "Idle", new Animation(0, 4, 150)}
-            }));
-            player.AddComponent<KeyboardControlComponent>(new KeyboardControlComponent());
-            player.AddComponent<ColliderComponent>(new ColliderComponent("player"));
-            entityComponentManager.AddEntityToGroup(player, new Group(1, GroupNames.GroupMap.ToString()));
-
-            camera = entityComponentManager.AddEntity();
-            camera.AddComponent<TransformComponent>(player.GetComponent<TransformComponent>());
-            camera.AddComponent<CameraComponent>(new CameraComponent(Width, Height));
-
-
-            //wall = entityComponentManager.AddEntity();
-            //wall.AddComponent<TransformComponent>(new TransformComponent(300.0f, 300.0f, 300, 20, 1));
-            //wall.AddComponent<SpriteComponent>(new SpriteComponent("../../../Sprites/Dirt.png"));
-            //wall.AddComponent<ColliderComponent>(new ColliderComponent("wall"));
-            //entityComponentManager.AddEntityToGroup(wall, new Group(0, GroupNames.GroupMap.ToString()));
+                { "idle", new Animation(0, 4, 150)}
+            }, "player", Width, Height));
+            entityComponentManager.AddEntityToGroup(player, new Group(2, GroupNames.GroupPlayers.ToString()));
+            camera = player.GetComponent<CameraComponent>();
 
         }
 
@@ -123,32 +114,24 @@ namespace Nanook.App
         public IntPtr GetRendererReference() => renderer;
         public SDL.SDL_Event GetEventReference() => @event;
         public List<ColliderComponent> GetColliderComponentsReference() => colliders;
-        public CameraComponent GetCameraReference() => camera!.GetComponent<CameraComponent>();
+        public EntityComponentManager GetEntityComponenteManagerReference() => entityComponentManager;
+        public CameraComponent? GetCameraReference() => camera;
         public void StopGame() => IsRunning = false;
         public void Update()
         {
             entityComponentManager.Refresh();
             entityComponentManager.Update();
-
-            HandleCollisions();
-
-        }
-        private void HandleCollisions()
-        {
-
-            foreach (ColliderComponent cc in colliders)
-            {
-                if (cc.Tag != player?.GetComponent<ColliderComponent>().Tag)
-                {
-                    Collision.AABBIsColliding(player?.GetComponent<ColliderComponent>() ?? throw new NullReferenceException("Player Does not Exist"), cc);
-                }
-            }
         }
 
-        public void AddTile(int srcX, int srcY, int posX, int posY)
+        public void AddTile(Tile tileObj)
         {
             Entity tile = entityComponentManager.AddEntity();
-            tile.AddComponent<TileComponent>(new TileComponent(srcX, srcY, posX, posY, "../../../Sprites/exampletileset.png"));
+            tile.AddComponent<TileComponent>(new TileComponent((int)tileObj.TileSheetIndex * 32, 0, (int)tileObj.Position.X * 32, (int)tileObj.Position.Y * 32,tileObj.TileSheetName));
+            if (tileObj.HasCollision)
+            {
+                tile.AddComponent<TransformComponent>(new TransformComponent(tileObj.Position.X*32, tileObj.Position.Y*32));
+                tile.AddComponent<ColliderComponent>(new ColliderComponent("tile"));
+            }
             entityComponentManager.AddEntityToGroup(tile, new Group(0, GroupNames.GroupMap.ToString()));
         }
 
@@ -172,6 +155,5 @@ namespace Nanook.App
             SDL.SDL_DestroyRenderer(renderer);
             SDL.SDL_Quit();
         }
-
     }
 }

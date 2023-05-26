@@ -1,6 +1,7 @@
 ﻿using Nanook.App.Extensions;
 using Nanook.App.Models;
 using SDL2;
+using System.Diagnostics;
 
 namespace Nanook.App.Components.ComponentModels
 {
@@ -21,6 +22,7 @@ namespace Nanook.App.Components.ComponentModels
         public SpriteComponent(string path) 
         {
             SetTexture(path);
+
         }
         public SpriteComponent(string path, Dictionary<string, Animation> animations)
         {
@@ -32,6 +34,7 @@ namespace Nanook.App.Components.ComponentModels
             }
             PlayAnimation(animations.Keys.First());
             IsAnimated = true;
+
         }
         public override void Init()
         {
@@ -64,14 +67,14 @@ namespace Nanook.App.Components.ComponentModels
             }
 
 
-            destRect = new SDL.SDL_Rect() // only moves the player based on camera speed
+            destRect = new SDL.SDL_Rect() // only based on camera speed if camera exists
             {
-                x = (int)transform!.Position.X - Game.Instance.GetCameraReference().Screen.x,
-                y = (int)transform!.Position.Y - Game.Instance.GetCameraReference().Screen.y,
+                x = (int)transform!.Position.X - (Game.Instance.GetCameraReference()?.Screen.x ?? 0),
+                y = (int)transform!.Position.Y - (Game.Instance.GetCameraReference()?.Screen.y ?? 0),
                 w = transform.Width * transform.Scale,
                 h = transform.Height * transform.Scale
             };
-
+            
         }
 
         public override void Draw()

@@ -34,8 +34,8 @@ namespace Nanook.App.Components.ComponentModels
         {
             destRect = new SDL.SDL_Rect()
             {
-                x = (int)(Position.X - Game.Instance.GetCameraReference().Screen.x),
-                y = (int)(Position.Y - Game.Instance.GetCameraReference().Screen.y),
+                x = (int)(Position.X - (Game.Instance.GetCameraReference()?.Screen.x ?? 0)),
+                y = (int)(Position.Y - (Game.Instance.GetCameraReference()?.Screen.y ?? 0)),
                 w = destRect.w,
                 h = destRect.h
             };
